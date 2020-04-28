@@ -1,2 +1,2 @@
 # Algorithms
-This is repo created to store my implementation of various algoithms I studied. 
+This is repo created to store my implementation of various MST algoithms I studied. 
