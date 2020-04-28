@@ -1,0 +1,325 @@
+% Copyright 2004 by Till Tantau <tantau@users.sourceforge.net>.
+%
+% In principle, this file can be redistributed and/or modified under
+% the terms of the GNU Public License, version 2.
+%
+% However, this file is supposed to be a template to be modified
+% for your own needs. For this reason, if you use this file as a
+% template and not specifically distribute it as part of a another
+% package/program, I grant the extra permission to freely copy and
+% modify this file as you see fit and even to delete this copyright
+% notice. 
+
+\documentclass{beamer}
+
+\usepackage{algorithmicx}
+\usepackage{algpseudocode}
+\usepackage{graphicx}
+\graphicspath{ {/Users/liwenouyang/Pics/} }
+% There are many different themes available for Beamer. A comprehensive
+% list with examples is given here:
+% http://deic.uab.es/~iblanes/beamer_gallery/index_by_theme.html
+% You can uncomment the themes below if you would like to use a different
+% one:
+%\usetheme{AnnArbor}
+%\usetheme{Antibes}
+%\usetheme{Bergen}
+%\usetheme{Berkeley}
+%\usetheme{Berlin}
+%\usetheme{Boadilla}
+%\usetheme{boxes}
+%\usetheme{CambridgeUS}
+%\usetheme{Copenhagen}
+%\usetheme{Darmstadt}
+\usetheme{default}
+%\usetheme{Frankfurt}
+%\usetheme{Goettingen}
+%\usetheme{Hannover}
+%\usetheme{Ilmenau}
+%\usetheme{JuanLesPins}
+%\usetheme{Luebeck}
+%\usetheme{Madrid}
+%\usetheme{Malmoe}
+%\usetheme{Marburg}
+%\usetheme{Montpellier}
+%\usetheme{PaloAlto}
+%\usetheme{Pittsburgh}
+%\usetheme{Rochester}
+%\usetheme{Singapore}
+%\usetheme{Szeged}
+%\usetheme{Warsaw}
+
+\title{Faster MST Algorithms}
+
+% A subtitle is optional and this may be deleted
+\subtitle{Using Boruvka Step}
+
+\author{Liwen Ouyang}
+% - Give the names in the same order as the appear in the paper.
+% - Use the \inst{?} command only if the authors have different
+%   affiliation.
+
+\institute[Universities of Somewhere and Elsewhere] % (optional, but mostly needed)
+{
+  
+  Department of Computer Science\\
+  University of Massachusetts Amherst
+  }
+% - Use the \inst command only if there are several affiliations.
+% - Keep it simple, no one is interested in your street address.
+
+\date{Apr 28 2020}
+% - Either use conference name or its abbreviation.
+% - Not really informative to the audience, more for people (including
+%   yourself) who are reading the slides online
+
+\subject{Theoretical Computer Science}
+% This is only inserted into the PDF information catalog. Can be left
+% out. 
+
+% If you have a file called "university-logo-filename.xxx", where xxx
+% is a graphic format that can be processed by latex or pdflatex,
+% resp., then you can add a logo as follows:
+
+% \pgfdeclareimage[height=0.5cm]{university-logo}{university-logo-filename}
+% \logo{\pgfuseimage{university-logo}}
+
+% Delete this, if you do not want the table of contents to pop up at
+% the beginning of each subsection:
+% Let's get started
+\begin{document}
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+\begin{frame}{Outline}
+  \tableofcontents
+  % You might wish to add the option [pausesections]
+\end{frame}
+
+% Section and subsections will appear in the presentation overview
+% and table of contents.
+\section{Boruvka Step and Boruvka's Algorithm}
+
+\subsection{Definition and an Example}
+
+\begin{frame}{Boruvka Step }
+  \begin{itemize}
+  \item {
+    Input: a weighted undirected graph $G= \{V,E\}$
+  }
+  \item {
+    \begin{enumerate}
+    \item[1]
+    For each $v \in V$, we select an edge $e$ with the smallest weight incident to $v$, and thus get a subgraph $G_1$
+    \item[2]
+    Create a multigraph $G_m$ by contracting all nodes that are connected by the edges we selected in 1 into supernodes. 
+    \item[3]
+    Get a contracted graph $G'$ by deleting all self loops and non-minimal repetitive edges in $G_m$
+    \end{enumerate}
+  }
+  \item{
+  Output: the set of edges selected in 1 and a contracted graph $G'$
+  }
+  \end{itemize}
+\end{frame}
+
+
+\begin{frame}{An Example}
+     \includegraphics[scale = 0.3]{MST1} 
+      \includegraphics[scale = 0.3]{MST2} 
+   
+\end{frame}
+
+
+\begin{frame}{An Example}
+     \includegraphics[scale = 0.3]{MST3} 
+      \includegraphics[scale = 0.3]{MST4} 
+   
+
+\end{frame}
+
+
+\subsection{Remarks}
+\begin{frame}{Key Points}
+\begin{itemize}
+\item{
+The edges we choose in 1 are in  MST, and the non-minimal repetitive edges we delete in 3 cannot be in MST by the cut property.
+}
+\item{
+The  edges that form self loop cannot be in MST by cycle property. 
+}
+\item{
+After one Boruvka step, the number of nodes in $G'$ is at most $\frac{1}{2}$ of G.
+}
+\item{
+Can be done in $O(m \alpha(n))$ using UnionFind with path compression and union by rank.  Essentially $O(m)$
+}
+
+\end{itemize}
+\end{frame}
+
+
+
+
+
+\subsection{Boruvka's Algorithm}
+\begin{frame}{Boruvka's Algorithm: Iterative Boruvka Step}
+\begin{itemize}
+\item{ 
+If we iteratively apply Boruvka's step on a connected graph $G$ until the contracted graph $G'$ returned by it has only 1 node, we get a MST of $G$.
+}
+\item{ Recall every Boruvka step reduce the number of nodes by at least a factor of 2: the algorithm has a runtime of  $O(m \log n)$
+}
+\item{ No better than Prim/Kruskal, but Boruvka step is used in most faster MST algorithms as a subroutine. 
+}
+\end{itemize}
+
+\end{frame}
+% You can reveal the parts of a slide one at a time
+% with the \pause command:
+
+\section{Faster  MST Algorithm with Boruvka Step as a Subroutine}
+
+\subsection{Deterministic}
+
+\begin{frame}{A Faster Deterministic Algorithm}
+\begin{block}{Use Brouvka step with Prim's algorithm}
+\begin{algorithmic}
+\Procedure{MST}{$G$}
+\State $G', E \gets$ apply Boruvka step to $G$ $\log \log n$ times.
+\State $T' \gets $ apply Prim's algorithm to $G'$
+\State \Return $T' \cup E$
+\EndProcedure
+\end{algorithmic}
+\end{block}
+\begin{block}{Runtime}
+This has a runtime of $O(m \log \log n)$, which is better. More on next slide. 
+\end{block}
+\end{frame}
+
+\begin{frame}{Runtime Analysis}
+
+\begin{itemize}
+\item{
+After applying $\log \log n$ Boruvka step , the number of nodes in $G'$ should be $O(\frac{n}{2^{\log \log n}}) = O(\frac{n}{\log n})$
+}
+\item{
+Running $\log \log n$ times Brouvka step gives $O(m \log \log n)$
+}
+\item{
+Consider the runtime of Prim's algorithm on $G'$ with at most $\frac{n}{\log n}$ nodes using Fibonacci heap: It should be: $O (m+ \frac{n}{\log n}\log n) = O(m+n)$
+}
+\item{
+Combine these two together we achieved a runtime of $O(m \log \log n)$
+}
+\end{itemize}
+\end{frame}
+
+\subsection{Randomized}
+
+\begin{frame}{A Randomized Algorithm with Linear Expected Runtime}
+
+\begin{block}{General Idea}
+\begin{enumerate}
+\item[1]
+Get a contracted graph $G'$, and selected edges $E$ by applying Boruvka step to $G$ 2 times
+\item[2]
+Create a subgraph $H$ of $G'$ by selecting each edge in $G'$ with a probability of $0.5$ , and recursivly apply the algorithm to $H$ to get a minimum spanning forrest $F$ of H.
+\item[3]
+Remove some edges that cannot be in the MST of $G'$ from $G'$ (F-heavy)
+\item[4]
+Recursively call the algorithm on $G'$ to get its MST $T'$
+\item[5]
+Return $T' \cup E$
+\end{enumerate}
+
+\end{block}
+
+\end{frame}
+
+
+\begin{frame}
+\begin{itemize}
+\item{
+This algorithm was developed by David Karger, Philip Klein, and Robert Tarjan.
+}
+
+\item{
+It requires a linear-time MST verification subroutine for step 3
+}
+
+\item{
+The correctness is evident by induction if we view step 2,3 as some procedures to accelerate the speed of computing the MST of $G'$.
+}
+
+\item{
+It has an expected runtime of $O(m)$.
+}
+
+\item{
+ In the worst case this algorithm has the same runtime as Boruvka's algorithm.  This is easy to see. If the randomness of step 2 and 3 does not help, the whole algorithm is basically a recursive implementation of Boruvka's algorithm
+}
+\end{itemize}
+
+\end{frame}
+
+% Placing a * after \section means it will not show in the
+% outline or table of contents.
+\section*{Summary}
+
+\begin{frame}{Summary}
+  \begin{itemize}
+  \item
+    \alert{Boruvka step}: a way to calculate the edges that belong to MST and contract the graph in the meantime. 
+  \item
+    \alert{A deterministic MST algorithm}: A hybrid approach using Boruvka step with Prim's algorithm with a runtime of $O(m \log \log n)$
+  \item
+    \alert{Linear-time randomized algorithm}: very hard to implement because of the linear-time MST algorithm it requires. 
+  \end{itemize}
+  
+ 
+  
+  \begin{block}{Outlook}
+      There's a possible implementation of the MST verification algorithm by Hagerup. 
+    
+  \end{block}
+\end{frame}
+
+
+
+% All of the following is optional and typically not needed. 
+\appendix
+\section<presentation>*{\appendixname}
+\subsection<presentation>*{For Further Reading}
+
+\begin{frame}[allowframebreaks]
+  \frametitle<presentation>{For Further Reading}
+    
+  \begin{thebibliography}{10}
+    
+  \beamertemplatebookbibitems
+  % Start with overview books.
+\beamertemplatearticlebibitems
+  \bibitem{Author1990}
+    DAVID R. KARGER, PHILIP N. KLEIN, ROBERT E. TARJAN
+    \newblock {\em A Randomized Linear-Time Algorithm
+to Find Minimum Spanning Trees}.
+    \newblock Journal of the Association for Computing Machinery March 1995
+ 
+    
+  \ \beamertemplatebookbibitems
+  % Followed by interesting articles. Keep the list short. 
+
+  \bibitem{Someone2000}
+    Torben Hagerup
+    \newblock An Even Simpler Linear-Time Algorithm for Verifying Minimum
+Spanning Trees
+    \newblock {\em Graph-Theoretic Concepts in Computer Scince}
+  \end{thebibliography}
+\end{frame}
+
+\end{document}
+
+
