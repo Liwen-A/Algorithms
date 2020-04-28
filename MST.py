@@ -164,7 +164,7 @@ def BoruvkaMST(g):
 
 def hybridMST(g):
     """
-    run loglog n boruvka steps to get a contracted graph g', use kruskal's to get the MST of g', which
+    run loglog n boruvka steps to get a contracted graph g', use prim's algorithm to get the MST of g', which
     combined with results from the boruvka steps, gives the MST of G in O(m loglog n) time. 
     """
     E = set()
